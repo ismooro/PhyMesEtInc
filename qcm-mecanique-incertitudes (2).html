@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#FBFAF3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#171A20" media="(prefers-color-scheme: dark)">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DS Blanc">
+<meta name="format-detection" content="telephone=no">
+<title>DS Blanc — Mécanique du point &amp; Incertitudes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-serif: 'STIX Two Text', 'Cambria Math', Georgia, 'Times New Roman', serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --paper: #FBFAF3;
+    --paper-line-h: rgba(70,104,168,.30);
+    --paper-line-h-bold: rgba(70,104,168,.5);
+    --margin: #C1443B;
+    --ink: #1E2A38;
+    --ink-soft: #5A6774;
+    --ink-faint: #8B95A1;
+    --card: #FFFFFF;
+    --card-border: rgba(30,42,56,.14);
+    --stamp-ok: #2F6B4F;
+    --stamp-ok-bg: rgba(47,107,79,.10);
+    --stamp-ko: #B3362B;
+    --stamp-ko-bg: rgba(179,54,43,.09);
+    --chrono: #9A5B1E;
+    --chrono-bg: #FCEEDC;
+    --badge-dim: #3E5C8A;
+    --badge-dim-bg: rgba(62,92,138,.12);
+    --badge-unc: #7A4FA0;
+    --badge-unc-bg: rgba(122,79,160,.12);
+    --badge-mec: #2F6B4F;
+    --badge-mec-bg: rgba(47,107,79,.12);
+    --shadow: 0 1px 2px rgba(30,42,56,.06), 0 8px 24px rgba(30,42,56,.08);
+  }
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --paper: #171A20;
+      --paper-line-h: rgba(120,152,220,.20);
+      --paper-line-h-bold: rgba(120,152,220,.34);
+      --margin: #D9695F;
+      --ink: #EDEAE0;
+      --ink-soft: #B7BEC7;
+      --ink-faint: #7D8792;
+      --card: #1E222A;
+      --card-border: rgba(237,234,224,.12);
+      --stamp-ok: #6FBF97;
+      --stamp-ok-bg: rgba(111,191,151,.12);
+      --stamp-ko: #E28077;
+      --stamp-ko-bg: rgba(226,128,119,.12);
+      --chrono: #E5A863;
+      --chrono-bg: rgba(229,168,99,.14);
+      --badge-dim: #8CA9DE;
+      --badge-dim-bg: rgba(140,169,222,.14);
+      --badge-unc: #C29EE0;
+      --badge-unc-bg: rgba(194,158,224,.14);
+      --badge-mec: #7FCBA4;
+      --badge-mec-bg: rgba(127,203,164,.14);
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #171A20;
+    --paper-line-h: rgba(120,152,220,.20);
+    --paper-line-h-bold: rgba(120,152,220,.34);
+    --margin: #D9695F;
+    --ink: #EDEAE0;
+    --ink-soft: #B7BEC7;
+    --ink-faint: #7D8792;
+    --card: #1E222A;
+    --card-border: rgba(237,234,224,.12);
+    --stamp-ok: #6FBF97;
+    --stamp-ok-bg: rgba(111,191,151,.12);
+    --stamp-ko: #E28077;
+    --stamp-ko-bg: rgba(226,128,119,.12);
+    --chrono: #E5A863;
+    --chrono-bg: rgba(229,168,99,.14);
+    --badge-dim: #8CA9DE;
+    --badge-dim-bg: rgba(140,169,222,.14);
+    --badge-unc: #C29EE0;
+    --badge-unc-bg: rgba(194,158,224,.14);
+    --badge-mec: #7FCBA4;
+    --badge-mec-bg: rgba(127,203,164,.14);
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background:
+      linear-gradient(90deg, transparent 0 46px, var(--margin) 46px 47px, transparent 47px 100%),
+      repeating-linear-gradient(var(--paper) 0 27px, var(--paper-line-h) 27px 28px),
+      var(--paper);
+    background-attachment: local, local, fixed;
+    color: var(--ink);
+    font-family: var(--font-serif);
+    font-variant-ligatures: common-ligatures;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overscroll-behavior-y: none;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    min-height: 100%;
+  }
+  .mono { font-family: var(--font-mono); font-variant-ligatures: none; }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 28px 20px 60px;
+  }
+
+  /* ---- header / en-tête copie ---- */
+  .entete {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 3px;
+    box-shadow: var(--shadow);
+    padding: 22px 26px;
+    margin-bottom: 22px;
+    position: relative;
+  }
+  .entete::before {
+    content: "";
+    position: absolute; left: 0; top: 14px; bottom: 14px; width: 3px;
+    background: var(--margin);
+    opacity: .55;
+    border-radius: 0 2px 2px 0;
+  }
+  .entete .filiere { font-family:var(--font-mono); font-size: .72rem; letter-spacing: .04em; color: var(--ink-faint); text-transform: uppercase; }
+  .entete h1 { font-size: 1.5rem; line-height: 1.25; margin: 6px 0 4px; font-weight: 700; }
+  .entete .sous { color: var(--ink-soft); font-size: .95rem; margin: 0; }
+  .entete .meta { display:flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 14px; font-family:var(--font-mono); font-size: .78rem; color: var(--ink-soft); }
+  .entete .meta span b { color: var(--ink); font-weight: 600; }
+
+  /* ---- top bar: chrono + formulaire ---- */
+  .topbar {
+    display:flex; align-items:center; justify-content: space-between;
+    gap: 12px; margin-bottom: 18px; flex-wrap: wrap;
+  }
+  .chrono {
+    display:flex; align-items:center; gap: 8px;
+    background: var(--chrono-bg); color: var(--chrono);
+    border-radius: 999px; padding: 7px 16px 7px 12px;
+    font-family:var(--font-mono); font-weight:600; font-size: 1.02rem;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.04);
+  }
+  .chrono .dot { width:8px; height:8px; border-radius:50%; background: var(--chrono); animation: pulse 1.4s infinite ease-in-out; }
+  .chrono.stopped .dot { animation: none; opacity:.4; }
+  @keyframes pulse { 0%,100%{ opacity:1; } 50%{ opacity:.35; } }
+  @media (prefers-reduced-motion: reduce) { .chrono .dot { animation: none; } }
+
+  .btn-formulaire {
+    display:inline-flex; align-items:center; min-height:44px;
+    font-family:var(--font-mono); font-size: .8rem; font-weight: 600;
+    background: transparent; color: var(--ink-soft);
+    border: 1px solid var(--card-border); border-radius: 999px;
+    padding: 8px 16px; cursor: pointer;
+    touch-action: manipulation; -webkit-touch-callout: none; user-select: none;
+    transition: color .15s ease, border-color .15s ease, background-color .15s ease;
+  }
+
+  /* ---- start screen ---- */
+  .start-card {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 3px; box-shadow: var(--shadow); padding: 26px;
+  }
+  .start-card p { color: var(--ink-soft); line-height: 1.6; }
+  .start-card ul { color: var(--ink-soft); line-height: 1.75; padding-left: 20px; margin: 14px 0; }
+  .start-card ul li b { color: var(--ink); }
+
+  .cat-legend { display:flex; gap:10px; flex-wrap: wrap; margin: 16px 0 22px; }
+  .badge { font-family:var(--font-mono); font-size:.7rem; font-weight:600; padding: 4px 10px; border-radius: 999px; letter-spacing:.01em; }
+  .badge.dim { color: var(--badge-dim); background: var(--badge-dim-bg); }
+  .badge.unc { color: var(--badge-unc); background: var(--badge-unc-bg); }
+  .badge.mec { color: var(--badge-mec); background: var(--badge-mec-bg); }
+
+  .btn-primary {
+    display:inline-flex; align-items:center; justify-content:center; min-height:44px;
+    font-family:var(--font-mono); font-weight:700; font-size: .92rem;
+    background: var(--ink); color: var(--paper);
+    border: none; border-radius: 4px; padding: 13px 22px; cursor: pointer;
+    letter-spacing: .01em;
+    touch-action: manipulation; -webkit-touch-callout: none; user-select: none;
+    transition: opacity .15s ease, transform .1s ease;
+  }
+  .btn-secondary {
+    display:inline-flex; align-items:center; justify-content:center; min-height:44px;
+    font-family:var(--font-mono); font-weight:600; font-size: .85rem;
+    background: transparent; color: var(--ink);
+    border: 1.5px solid var(--ink); border-radius: 4px; padding: 11px 18px; cursor: pointer;
+    touch-action: manipulation; -webkit-touch-callout: none; user-select: none;
+    transition: background-color .15s ease, color .15s ease;
+  }
+
+  /* ---- question card ---- */
+  .qcard {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 3px; box-shadow: var(--shadow); padding: 24px 24px 22px;
+  }
+  .qhead { display:flex; align-items:center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+  .qnum { font-family:var(--font-mono); font-size: .8rem; color: var(--ink-faint); }
+  .qtags { display:flex; gap:8px; align-items:center; }
+  .diff-dots { display:flex; gap: 3px; align-items:center; margin-left: 4px; }
+  .diff-dots i { width:6px; height:6px; border-radius:50%; background: var(--card-border); display:inline-block; }
+  .diff-dots i.on { background: var(--ink-soft); }
+
+  .qtext { font-size: 1.14rem; line-height: 1.55; margin: 4px 0 20px; }
+
+  .opts { display: flex; flex-direction: column; gap: 10px; }
+  .opt {
+    display:flex; align-items:flex-start; gap: 12px; min-height: 44px;
+    border: 1.5px solid var(--card-border); border-radius: 4px;
+    padding: 12px 14px; cursor: pointer; text-align:left;
+    background: transparent; color: var(--ink); font-family: inherit; font-size: 1rem; line-height: 1.45;
+    width: 100%;
+    touch-action: manipulation;
+    transition: border-color .15s ease, background-color .15s ease;
+  }
+  .opt .lettre {
+    font-family:var(--font-mono); font-weight:700; font-size: .85rem;
+    color: var(--ink-faint); flex: none; width: 18px;
+  }
+  .opt:disabled { cursor: default; }
+  .opt.correct { border-color: var(--stamp-ok); background: var(--stamp-ok-bg); }
+  .opt.correct .lettre { color: var(--stamp-ok); }
+  .opt.wrong { border-color: var(--stamp-ko); background: var(--stamp-ko-bg); }
+  .opt.wrong .lettre { color: var(--stamp-ko); }
+  .opt.dim-out { opacity: .5; }
+
+  .feedback {
+    margin-top: 16px; padding: 14px 16px; border-radius: 4px;
+    font-size: .95rem; line-height: 1.55;
+    border-left: 3px solid var(--stamp-ok);
+    background: var(--stamp-ok-bg); color: var(--ink);
+  }
+  .feedback.ko { border-left-color: var(--stamp-ko); background: var(--stamp-ko-bg); }
+  .feedback .verdict { font-family:var(--font-mono); font-weight:700; font-size:.78rem; text-transform: uppercase; letter-spacing:.03em; display:block; margin-bottom: 6px; }
+  .feedback.ok .verdict { color: var(--stamp-ok); }
+  .feedback.ko .verdict { color: var(--stamp-ko); }
+
+  .qfoot { display:flex; justify-content: flex-end; margin-top: 18px; }
+
+  .progressbar { height: 4px; background: var(--card-border); border-radius: 999px; overflow:hidden; margin-bottom: 18px; }
+  .progressbar > i { display:block; height:100%; background: var(--ink); border-radius: 999px; transition: width .25s ease; }
+
+  /* ---- résultats ---- */
+  .score-hero { text-align:center; padding: 10px 0 6px; }
+  .score-hero .grande { font-family:var(--font-mono); font-weight:700; font-size: 3.2rem; letter-spacing: -.02em; }
+  .score-hero .sur20 { font-size: 1.3rem; color: var(--ink-faint); font-family:var(--font-mono); }
+  .score-hero .mention { margin-top: 6px; color: var(--ink-soft); }
+  .breakdown { display:grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 22px 0; }
+  .breakdown .cell { border: 1px solid var(--card-border); border-radius: 4px; padding: 14px 10px; text-align:center; }
+  .breakdown .cell .lbl { font-family:var(--font-mono); font-size:.68rem; letter-spacing:.03em; text-transform:uppercase; color: var(--ink-faint); }
+  .breakdown .cell .val { font-family:var(--font-mono); font-weight:700; font-size: 1.3rem; margin-top: 4px; }
+  .actions-row { display:flex; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
+
+  /* ---- modal formulaire ---- */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(20,24,30,.55);
+    display: none; align-items: flex-start; justify-content: center;
+    padding: 24px 16px calc(24px + env(safe-area-inset-bottom, 0px));
+    padding-top: max(24px, env(safe-area-inset-top, 0px));
+    overflow-y: auto; overscroll-behavior: contain; z-index: 50;
+  }
+  .overlay.open { display: flex; }
+  .modal {
+    background: var(--card); color: var(--ink); border-radius: 6px;
+    max-width: 640px; width: 100%; padding: 26px 24px 28px; box-shadow: var(--shadow);
+    max-height: calc(100vh - 60px);
+    max-height: calc(100dvh - 60px);
+    overflow-y: auto; overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .modal h2 { font-size: 1.25rem; margin: 0 0 4px; }
+  .modal .modal-sub { color: var(--ink-faint); font-size: .85rem; margin: 0 0 18px; font-family:var(--font-mono); }
+  .modal-close {
+    float: right; display:flex; align-items:center; justify-content:center;
+    min-width: 44px; min-height: 44px; margin: -10px -10px 0 0;
+    background: none; border: none; color: var(--ink-faint);
+    font-size: 1.3rem; cursor: pointer; line-height: 1;
+    touch-action: manipulation; -webkit-touch-callout: none; user-select: none;
+  }
+  .modal h3 { font-size: .95rem; text-transform: uppercase; letter-spacing:.04em; font-family:var(--font-mono); color: var(--ink-soft); margin: 24px 0 10px; }
+  .modal h3:first-of-type { margin-top: 4px; }
+  table.dimtable { width:100%; border-collapse: collapse; font-size: .88rem; }
+  table.dimtable th, table.dimtable td { text-align:left; padding: 7px 8px; border-bottom: 1px solid var(--card-border); }
+  table.dimtable th { font-family:var(--font-mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.03em; color: var(--ink-faint); }
+  table.dimtable td.dim { font-family: var(--font-serif); font-size: .95rem; letter-spacing: .02em; }
+  .theo-list { list-style: none; padding:0; margin:0; display:flex; flex-direction:column; gap: 12px; }
+  .theo-list li { border-left: 2px solid var(--card-border); padding-left: 12px; font-size: .93rem; line-height:1.5; }
+  .theo-list li b { display:block; color: var(--ink); margin-bottom: 2px; }
+  .theo-list li span.f { font-family: var(--font-serif); font-size: 1rem; color: var(--ink-soft); }
+
+  .table-scroll { overflow-x: auto; }
+
+  /* ---- interactions tactiles ----
+     Le survol n'est activé que pour les pointeurs fins (souris/trackpad) : sur
+     tactile, :hover resterait "collé" après un tap. À la place, :active donne
+     un retour immédiat au doigt, avec la même intention visuelle. */
+  @media (hover: hover) and (pointer: fine) {
+    .btn-formulaire:hover { color: var(--ink); border-color: var(--ink-faint); }
+    .btn-primary:hover { opacity: .88; }
+    .btn-secondary:hover { background: var(--ink); color: var(--paper); }
+    .opt:hover:not(:disabled) { border-color: var(--ink-faint); }
+    .modal-close:hover { color: var(--ink); }
+  }
+  .btn-formulaire:active { color: var(--ink); border-color: var(--ink-faint); background: var(--paper-line-h); }
+  .btn-primary:active { opacity: .8; transform: scale(.97); }
+  .btn-secondary:active { background: var(--ink); color: var(--paper); }
+  .opt:active:not(:disabled) { border-color: var(--ink-faint); background: var(--paper-line-h); }
+  .modal-close:active { color: var(--ink); }
+
+  @media (max-width: 480px) {
+    .wrap { padding: 18px 14px 48px; }
+    .entete { padding: 18px; }
+    .entete h1 { font-size: 1.25rem; }
+    .breakdown { grid-template-columns: 1fr; }
+    .score-hero .grande { font-size: 2.6rem; }
+    .topbar { gap: 10px; }
+    .btn-formulaire { flex: none; }
+    .qfoot { justify-content: stretch; }
+    .qfoot .btn-primary { width: 100%; }
+    .actions-row { flex-direction: column; }
+    .actions-row .btn-primary, .actions-row .btn-secondary { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="entete">
+    <div class="filiere">ATS 2026 – 2027 · Physique</div>
+    <h1>Devoir surveillé blanc</h1>
+    <p class="sous">Mécanique du point matériel · Analyse dimensionnelle · Incertitudes</p>
+    <div class="meta">
+      <span>Durée : <b>libre</b></span>
+      <span>Questions : <b>20</b></span>
+      <span>Barème : <b>1 pt / question</b></span>
+    </div>
+  </div>
+
+  <div class="topbar">
+    <div class="chrono stopped mono" id="chrono">
+      <span class="dot"></span><span id="chronoTxt">00:00</span>
+    </div>
+    <button class="btn-formulaire" id="openFormulaire">📎 Formulaire &amp; rappels</button>
+  </div>
+
+  <!-- ÉCRAN DE DÉPART -->
+  <div id="screenStart" class="start-card">
+    <p>Vingt questions tirées au hasard dans une banque plus large, classées par difficulté croissante : quelques questions de cours simples pour s'échauffer, puis des applications d'analyse dimensionnelle et des cas d'incertitudes plus fins.</p>
+    <div class="cat-legend">
+      <span class="badge dim">Analyse dimensionnelle</span>
+      <span class="badge unc">Incertitudes</span>
+      <span class="badge mec">Mécanique du point</span>
+    </div>
+    <ul>
+      <li><b>Un tirage aléatoire</b> à chaque lancement : deux copies ne sont jamais identiques.</li>
+      <li><b>Correction immédiate</b> après chaque réponse, avec l'explication attendue à l'écrit.</li>
+      <li><b>Le formulaire</b> (équations aux dimensions, théorèmes) reste consultable à tout moment, comme une annexe.</li>
+    </ul>
+    <button class="btn-primary" id="btnStart">Commencer le DS →</button>
+  </div>
+
+  <!-- ÉCRAN QUESTION -->
+  <div id="screenQuiz" style="display:none;">
+    <div class="progressbar"><i id="progressFill" style="width:0%"></i></div>
+    <div class="qcard">
+      <div class="qhead">
+        <span class="qnum" id="qNum">Question 1 / 20</span>
+        <span class="qtags">
+          <span class="badge" id="qCatBadge">—</span>
+          <span class="diff-dots" id="qDiffDots"><i></i><i></i><i></i></span>
+        </span>
+      </div>
+      <p class="qtext" id="qText"></p>
+      <div class="opts" id="qOpts"></div>
+      <div class="feedback" id="qFeedback" style="display:none;"></div>
+      <div class="qfoot">
+        <button class="btn-primary" id="btnNext" style="display:none;">Question suivante →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉCRAN RÉSULTAT -->
+  <div id="screenEnd" style="display:none;">
+    <div class="qcard">
+      <div class="score-hero">
+        <div class="grande"><span id="scoreVal">0</span><span class="sur20">/20</span></div>
+        <p class="mention" id="mentionTxt"></p>
+      </div>
+      <div class="breakdown">
+        <div class="cell"><div class="lbl">Dimensions</div><div class="val" id="scDim">0/0</div></div>
+        <div class="cell"><div class="lbl">Incertitudes</div><div class="val" id="scUnc">0/0</div></div>
+        <div class="cell"><div class="lbl">Mécanique</div><div class="val" id="scMec">0/0</div></div>
+      </div>
+      <p class="mono" style="color:var(--ink-soft); font-size:.85rem; text-align:center;">Temps total : <span id="tempsFinal">00:00</span></p>
+      <div class="actions-row">
+        <button class="btn-primary" id="btnRestart">Refaire un DS (nouveau tirage) →</button>
+        <button class="btn-secondary" id="btnReviewFormulaire">Revoir le formulaire</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODALE FORMULAIRE -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <button class="modal-close" id="closeFormulaire" aria-label="Fermer">×</button>
+    <h2>Formulaire de secours</h2>
+    <p class="modal-sub">Équations aux dimensions et théorèmes à connaître par cœur</p>
+
+    <h3>Équations aux dimensions utiles</h3>
+    <div class="table-scroll">
+    <table class="dimtable">
+      <tr><th>Grandeur</th><th>Unité SI</th><th>Dimension</th></tr>
+      <tr><td>Longueur</td><td>m</td><td class="dim">L</td></tr>
+      <tr><td>Masse</td><td>kg</td><td class="dim">M</td></tr>
+      <tr><td>Temps</td><td>s</td><td class="dim">T</td></tr>
+      <tr><td>Température</td><td>K</td><td class="dim">Θ</td></tr>
+      <tr><td>Vitesse</td><td>m·s⁻¹</td><td class="dim">L T⁻¹</td></tr>
+      <tr><td>Accélération</td><td>m·s⁻²</td><td class="dim">L T⁻²</td></tr>
+      <tr><td>Force</td><td>N</td><td class="dim">M L T⁻²</td></tr>
+      <tr><td>Énergie, travail</td><td>J</td><td class="dim">M L² T⁻²</td></tr>
+      <tr><td>Puissance</td><td>W</td><td class="dim">M L² T⁻³</td></tr>
+      <tr><td>Pression</td><td>Pa</td><td class="dim">M L⁻¹ T⁻²</td></tr>
+      <tr><td>Masse volumique</td><td>kg·m⁻³</td><td class="dim">M L⁻³</td></tr>
+      <tr><td>Masse linéique</td><td>kg·m⁻¹</td><td class="dim">M L⁻¹</td></tr>
+      <tr><td>Fréquence, pulsation</td><td>Hz, rad·s⁻¹</td><td class="dim">T⁻¹</td></tr>
+      <tr><td>Viscosité dynamique η</td><td>Pa·s</td><td class="dim">M L⁻¹ T⁻¹</td></tr>
+      <tr><td>Conductivité thermique λ</td><td>W·m⁻¹·K⁻¹</td><td class="dim">M L T⁻³ Θ⁻¹</td></tr>
+      <tr><td>Capacité thermique massique c</td><td>J·kg⁻¹·K⁻¹</td><td class="dim">L² T⁻² Θ⁻¹</td></tr>
+      <tr><td>Diffusivité thermique Dth</td><td>m²·s⁻¹</td><td class="dim">L² T⁻¹</td></tr>
+      <tr><td>Produit R·C (circuit RC)</td><td>s</td><td class="dim">T</td></tr>
+    </table>
+    </div>
+
+    <h3>Théorèmes et lois à connaître</h3>
+    <ul class="theo-list">
+      <li><b>Principe fondamental de la dynamique</b>référentiel galiléen, masse constante <span class="f">ΣF⃗ = m·a⃗</span></li>
+      <li><b>Théorème de la puissance cinétique</b><span class="f">dEc/dt = ΣF⃗·v⃗ = P(ΣF⃗)</span></li>
+      <li><b>Théorème de l'énergie cinétique</b><span class="f">ΔEc = W(ΣF⃗)</span></li>
+      <li><b>Chute libre sans frottement</b>vitesse acquise après une hauteur h <span class="f">v = √(2gh)</span></li>
+      <li><b>Mouvement circulaire uniforme</b>rayon r, vitesse angulaire Ω <span class="f">a⃗ = −rΩ²u⃗r</span> (centripète)</li>
+      <li><b>Oscillateur harmonique</b>équation et solution générale <span class="f">ẍ + ω0²x = 0 → x(t) = A cos(ω0t) + B sin(ω0t)</span></li>
+      <li><b>Pendule simple, petites oscillations</b><span class="f">θ̈ + ω0²θ = 0, ω0 = √(g/ℓ)</span></li>
+      <li><b>Masse-ressort</b><span class="f">ω0 = √(k/m)</span></li>
+      <li><b>Régime visqueux (loi de Stokes)</b>force de frottement sur une bille de rayon r <span class="f">f⃗ = −6πrη v⃗</span></li>
+      <li><b>Loi des gaz parfaits</b><span class="f">pV = n·RGP·T</span></li>
+      <li><b>Écart normalisé (compatibilité d'une mesure)</b>compatible si EN &lt; 2 <span class="f">EN = |x − xréf| / u(x)</span></li>
+      <li><b>Propagation des incertitudes — produit / quotient</b><span class="f">u(R)/R = √[ Σ (u(xᵢ)/xᵢ)² ]</span></li>
+      <li><b>Loi uniforme de demi-étendue Δ</b>écart-type associé <span class="f">σ = Δ/√3</span></li>
+    </ul>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------------------------------------------------------------
+  // Banque de questions
+  // diff: 1 facile, 2 moyen, 3 difficile
+  // cat: 'dim' | 'unc' | 'mec'
+  // ---------------------------------------------------------------
+  const POOL = [
+    // --- Analyse dimensionnelle / homogénéité ---
+    {cat:'dim', diff:1, q:"Quelle est la dimension d'une énergie cinétique E_c en unités SI de base ?",
+     opts:["M L² T⁻²","M L T⁻¹","M L² T⁻³","M L⁻¹ T⁻²"], correct:0,
+     exp:"E_c = ½ m v² : sa dimension est [m][v]² = M·(L T⁻¹)² = M L² T⁻²."},
+    {cat:'dim', diff:1, q:"La relation E_c = ½ m v (m en kg, v en m·s⁻¹) est-elle homogène ?",
+     opts:["Oui, elle est homogène","Non : il manque un facteur v (il faut v²)","Non : il manque un facteur t","Non : il faut remplacer m par m²"], correct:1,
+     exp:"[mv] = M L T⁻¹ (une quantité de mouvement), alors que [E_c] = M L² T⁻². Il manque un facteur v : E_c = ½ m v²."},
+    {cat:'dim', diff:1, q:"Dans u_C(t) = E(1 − e^(−t/RC)) pour un dipôle RC, quelle est la dimension du produit RC ?",
+     opts:["Une durée (T)","Une tension (V)","Sans dimension","Une charge électrique"], correct:0,
+     exp:"R = U/I et C = q/U = I·t/U, donc RC = t : le produit RC est homogène à une durée, ce qui rend l'exposant −t/(RC) sans dimension."},
+    {cat:'dim', diff:1, q:"La loi des gaz parfaits pV = nR_GP T est-elle homogène ?",
+     opts:["Oui, les deux membres s'expriment en joules","Non, il manque un facteur T²","Non, il faut remplacer n par n²","Non, il faut diviser par T"], correct:0,
+     exp:"pV s'exprime en Pa·m³ = J. Dans nR_GP T, les unités mol et K se simplifient et le produit s'exprime aussi en joules."},
+    {cat:'dim', diff:1, q:"Un objet est lâché sans vitesse initiale et tombe d'une hauteur h dans le vide. De quelles grandeurs dépend sa vitesse finale v ?",
+     opts:["De g et h uniquement","De g, h et de la masse m","De g, h et de la forme de l'objet","Uniquement de h"], correct:0,
+     exp:"Dans le vide, une plume et une bille de plomb chutent de la même façon : la vitesse ne dépend pas de la masse, seulement de g et h."},
+    {cat:'dim', diff:2, q:"On suppose que l'énergie E transportée par une vague (par unité de surface) s'écrit E = K·ρ^α·g^β·a^γ (ρ masse volumique, g pesanteur, a amplitude). Quel triplet (α, β, γ) l'analyse dimensionnelle donne-t-elle ?",
+     opts:["(1, 1, 2)","(1, 2, 1)","(2, 1, 1)","(1, 1, 1)"], correct:0,
+     exp:"[E]=M T⁻² impose α=1 (facteur M), puis −2β=−2 donne β=1, et −3α+β+γ=0 donne γ=2."},
+    {cat:'dim', diff:2, q:"Une bille de diamètre d, soumise à une force motrice P, tombe dans un liquide de viscosité η. Quelle expression de la vitesse limite v est dimensionnellement correcte (à K près) ?",
+     opts:["v = K·P/(ηd)","v = K·Pη/d","v = K·d·P/η²","v = K·√(P/(ηd))"], correct:0,
+     exp:"En posant v = K d^α P^β η^γ et en identifiant M, L, T, on trouve α=−1, β=1, γ=−1, soit v = K·P/(ηd)."},
+    {cat:'dim', diff:2, q:"La pulsation propre d'un système masse-ressort s'écrit ω0 = K·k^α·m^β. Quels sont α et β ?",
+     opts:["α = 1/2, β = −1/2","α = 1, β = −1","α = −1/2, β = 1/2","α = 1/2, β = 1/2"], correct:0,
+     exp:"[k] = M T⁻² (raideur = force/longueur), donc T⁻¹ = M^α T^(−2α), d'où α = 1/2, puis α+β = 0 donne β = −1/2 : ω0 = K√(k/m)."},
+    {cat:'dim', diff:2, q:"La surpression hydrostatique à une profondeur h s'écrit p = K·ρ^α·g^β·h^γ. Quelle est cette loi une fois les exposants identifiés (K = 1) ?",
+     opts:["p = ρ g h","p = ρ g / h","p = ρ g² h","p = ρ h / g"], correct:0,
+     exp:"L'identification des dimensions M, L, T donne α=1, β=1, γ=1, soit p = Kρgh ; la statique des fluides donne K = 1."},
+    {cat:'dim', diff:2, q:"La célérité c d'une onde le long d'une corde dépend de la tension F et de la masse linéique μ. Quelle expression est dimensionnellement correcte ?",
+     opts:["c = K√(F/μ)","c = K√(Fμ)","c = K F/μ","c = K√(μ/F)"], correct:0,
+     exp:"[F]=MLT⁻² et [μ]=ML⁻¹. En posant c = K F^α μ^β, on trouve α=1/2 et β=−1/2, d'où c = K√(F/μ)."},
+    {cat:'dim', diff:2, q:"Quelle est la dimension de la viscosité dynamique η (unité Pa·s) ?",
+     opts:["M L⁻¹ T⁻¹","M L⁻¹ T⁻²","M L T⁻¹","M L⁻² T⁻¹"], correct:0,
+     exp:"η se mesure en Pa·s = (M L⁻¹ T⁻²)·T = M L⁻¹ T⁻¹."},
+    {cat:'dim', diff:3, q:"Le coefficient de diffusion thermique D_th vérifie D_th·∂²T/∂x² − ∂T/∂t = 0. Quelle est sa dimension ?",
+     opts:["L² T⁻¹","L T⁻¹","L² T⁻²","M L² T⁻¹"], correct:0,
+     exp:"[∂²T/∂x²] = Θ L⁻² et [∂T/∂t] = Θ T⁻¹. L'égalité des deux termes impose [D_th]·Θ L⁻² = Θ T⁻¹, soit [D_th] = L² T⁻¹."},
+    {cat:'dim', diff:3, q:"En posant D_th = K·ρ^α·c^β·λ^γ (c capacité thermique massique, λ conductivité thermique), quels sont α, β, γ ?",
+     opts:["α = −1, β = −1, γ = 1","α = 1, β = 1, γ = −1","α = −1, β = 1, γ = 1","α = 1, β = −1, γ = −1"], correct:0,
+     exp:"L'identification des dimensions M, L, T, Θ donne α=−1, β=−1, γ=1, soit D_th = K·λ/(ρc), avec K = 1 : c'est la diffusivité thermique."},
+
+    // --- Incertitudes ---
+    {cat:'unc', diff:1, q:"Une mesure donne g = 9,733 76 m·s⁻² avec une incertitude-type u(g) = 0,05 m·s⁻². Comment écrire correctement le résultat ?",
+     opts:["g = 9,73 ± 0,05 m·s⁻²","g = 9,733 76 ± 0,05 m·s⁻²","g = 9,7 ± 0,05 m·s⁻²","g = 9,734 ± 0,05 m·s⁻²"], correct:0,
+     exp:"La valeur mesurée doit être arrondie au même rang décimal que son incertitude-type : 9,73 ± 0,05 m·s⁻²."},
+    {cat:'unc', diff:1, q:"Dans une régression τ = aR + b réalisée sur un dipôle RC idéal, à quoi correspond la pente a ?",
+     opts:["À la capacité C","À une résistance interne R0","À une durée toujours nulle","Au produit RC²"], correct:0,
+     exp:"Le modèle idéal donne τ = RC = aR + b avec a = C et b = 0 ; la pente représente donc directement la capacité."},
+    {cat:'unc', diff:1, q:"Combien de chiffres significatifs conserve-t-on en général pour une incertitude-type ?",
+     opts:["1 (parfois 2)","Toujours 3","Autant que la valeur mesurée","Il n'y a pas de règle"], correct:0,
+     exp:"On arrondit classiquement l'incertitude-type à un seul chiffre significatif (deux si le premier chiffre est un 1)."},
+    {cat:'unc', diff:2, q:"L'écart normalisé entre une valeur mesurée b et une référence b_réf vaut EN = |b − b_réf| / u(b). Que conclut-on si EN = 10,2 ?",
+     opts:["b est incompatible avec b_réf (EN > 2)","b est compatible avec b_réf","On ne peut rien conclure","Il faut recalculer u(b)"], correct:0,
+     exp:"Le critère usuel de compatibilité est EN < 2. Ici EN = 10,2 ≫ 2 : la mesure de b révèle un écart significatif avec la référence."},
+    {cat:'unc', diff:2, q:"Pour une loi de probabilité uniforme de demi-étendue Δ, quel est l'écart-type correspondant ?",
+     opts:["Δ/√3","Δ/2","Δ/√2","Δ"], correct:0,
+     exp:"L'écart-type d'une loi uniforme sur [x−Δ, x+Δ] vaut Δ/√3."},
+    {cat:'unc', diff:2, q:"Une simulation de Monte-Carlo pour estimer u(g) consiste à…",
+     opts:["tirer aléatoirement les grandeurs d'entrée dans leurs intervalles et calculer l'écart-type des valeurs de g obtenues",
+           "calculer g uniquement avec la valeur moyenne des grandeurs d'entrée",
+           "mesurer g plusieurs fois avec le même appareil",
+           "résoudre analytiquement l'équation différentielle du mouvement"], correct:0,
+     exp:"On répète un grand nombre de tirages aléatoires des grandeurs d'entrée (selon leur loi), on calcule g à chaque tirage, et l'écart-type de la série obtenue estime u(g)."},
+    {cat:'unc', diff:2, q:"Avec b = 5,1 µs et a = 96,2 nF, quelle est la valeur (arrondie) de R0 = b/a ?",
+     opts:["≈ 53 Ω","≈ 530 Ω","≈ 5,3 Ω","≈ 18,9 Ω"], correct:0,
+     exp:"R0 = 5,1/96,2 × 10³ Ω ≈ 53 Ω (s·F⁻¹ = Ω)."},
+    {cat:'unc', diff:3, q:"Pour un quotient R0 = b/a, la propagation des incertitudes donne u(R0)/R0 = √[(u(b)/b)² + (u(a)/a)²]. Avec b = 5,1 µs, u(b) = 0,5 µs, a = 96,2 nF, u(a) = 1,1 nF, que vaut approximativement u(R0)/R0 ?",
+     opts:["≈ 0,10 (10 %)","≈ 0,05 (5 %)","≈ 0,20 (20 %)","≈ 0,53"], correct:0,
+     exp:"√[(0,5/5,1)² + (1,1/96,2)²] ≈ √(0,0096 + 0,00013) ≈ 0,10, soit une incertitude relative d'environ 10 %."},
+
+    // --- Mécanique du point ---
+    {cat:'mec', diff:1, q:"Un bloc est en équilibre (sans glisser) sur un plan incliné d'angle α. Quelle est l'expression de la réaction normale N ?",
+     opts:["N = mg cos α","N = mg sin α","N = mg tan α","N = mg"], correct:0,
+     exp:"La projection du PFD selon la normale au plan donne N − mg cos α = 0, soit N = mg cos α."},
+    {cat:'mec', diff:1, q:"Sur ce même plan incliné, quelle est l'expression de la force de frottement statique f nécessaire à l'équilibre ?",
+     opts:["f = mg sin α","f = mg cos α","f = mg tan α","f = 0"], correct:0,
+     exp:"La projection du PFD le long du plan donne f − mg sin α = 0, soit f = mg sin α."},
+    {cat:'mec', diff:1, q:"Un objet est lâché sans vitesse initiale d'une hauteur h dans le vide. Quelle est sa vitesse en arrivant au sol ?",
+     opts:["v = √(2gh)","v = √(gh)","v = gh","v = 2gh"], correct:0,
+     exp:"L'étude cinématique (ou énergétique) de la chute libre donne v = √(2gh)."},
+    {cat:'mec', diff:1, q:"Quelle relation définit le vecteur vitesse à partir du vecteur position OM⃗ ?",
+     opts:["v⃗ = d(OM⃗)/dt","v⃗ = OM⃗ × t","v⃗ = ∫ OM⃗ dt","v⃗ = OM⃗ / t"], correct:0,
+     exp:"Par définition, le vecteur vitesse est la dérivée temporelle du vecteur position : v⃗ = d(OM⃗)/dt."},
+    {cat:'mec', diff:1, q:"Quelle est la deuxième loi de Newton (PFD) pour un point matériel de masse constante, dans un référentiel galiléen ?",
+     opts:["ΣF⃗ = m a⃗","ΣF⃗ = m v⃗","ΣF⃗ = (dm/dt) v⃗","ΣF⃗ = m x⃗"], correct:0,
+     exp:"Le principe fondamental de la dynamique s'écrit ΣF⃗ = m a⃗ pour une masse constante dans un référentiel galiléen."},
+    {cat:'mec', diff:1, q:"Pour un oscillateur harmonique ẍ + ω0²x = 0 avec x(0) = x0 et ẋ(0) = 0, quelle est la solution ?",
+     opts:["x(t) = x0 cos(ω0 t)","x(t) = x0 sin(ω0 t)","x(t) = x0 e^(−ω0 t)","x(t) = x0 cos(ω0 t) + x0 sin(ω0 t)"], correct:0,
+     exp:"La solution générale est x(t) = A cos(ω0t) + B sin(ω0t). Les conditions initiales donnent A = x0 et B = 0."},
+    {cat:'mec', diff:1, q:"En coordonnées polaires, quelles sont les coordonnées cartésiennes d'un point M(r, θ) ?",
+     opts:["x = r cos θ, y = r sin θ","x = r sin θ, y = r cos θ","x = r, y = θ","x = r + θ, y = r − θ"], correct:0,
+     exp:"Par projection sur les axes cartésiens, x = r cos θ et y = r sin θ."},
+    {cat:'mec', diff:2, q:"Pour un projectile lancé avec une vitesse v0 selon un angle α (sans frottement), quelle est sa portée P ?",
+     opts:["P = v0² sin(2α) / g","P = v0² sin α / g","P = v0² cos(2α) / g","P = 2 v0² sin α / g"], correct:0,
+     exp:"Le retour à y = 0 a lieu à x(t_vol) = v0² sin(2α)/g, qui est la portée du tir."},
+    {cat:'mec', diff:2, q:"Pour quel angle de tir la portée d'un projectile est-elle maximale ?",
+     opts:["45°","30°","60°","90°"], correct:0,
+     exp:"P = v0² sin(2α)/g est maximale quand sin(2α) = 1, soit α = 45°, avec P_max = v0²/g."},
+    {cat:'mec', diff:2, q:"Pour un satellite en orbite circulaire uniforme de rayon r et de vitesse angulaire Ω, quelle est son accélération ?",
+     opts:["a⃗ = −rΩ² u⃗r (centripète)","a⃗ = rΩ² u⃗θ","a⃗ = 0⃗","a⃗ = −rΩ u⃗r"], correct:0,
+     exp:"En coordonnées polaires, r constant et θ̇ = Ω constant donnent a⃗ = −rθ̇² u⃗r + rθ̈ u⃗θ = −rΩ² u⃗r."},
+    {cat:'mec', diff:2, q:"Pour un pendule simple de longueur ℓ, aux petites oscillations, quelle est sa pulsation propre ω0 ?",
+     opts:["ω0 = √(g/ℓ)","ω0 = √(ℓ/g)","ω0 = g/ℓ","ω0 = √(gℓ)"], correct:0,
+     exp:"La projection tangentielle du PFD donne θ̈ + (g/ℓ) sin θ = 0, et sin θ ≈ θ aux petites oscillations, d'où ω0 = √(g/ℓ)."},
+    {cat:'mec', diff:2, q:"Quelle est la vitesse limite v_lim d'une bille tombant dans un liquide visqueux, soumise à un frottement −6πrη v⃗ (poussée d'Archimède négligée) ?",
+     opts:["v_lim = mg / (6πrη)","v_lim = 6πrη g / m","v_lim = mg · 6πrη","v_lim = g / (6πrη m)"], correct:0,
+     exp:"À la vitesse limite, l'accélération s'annule : mg − 6πrη v_lim = 0, soit v_lim = mg/(6πrη)."},
+    {cat:'mec', diff:2, q:"Le théorème de la puissance cinétique relie dEc/dt à…",
+     opts:["la puissance des forces, ΣF⃗·v⃗","la position x seule","l'accélération seule","la masse m seule"], correct:0,
+     exp:"dEc/dt = m v (dv/dt) = m v a = F v : c'est la puissance de la résultante des forces, en watts."},
+    {cat:'mec', diff:2, q:"Pour un ressort vertical de raideur k soutenant une masse m, quelle est la longueur d'équilibre ℓ_eq du ressort (ℓ0 : longueur à vide) ?",
+     opts:["ℓ_eq = ℓ0 + mg/k","ℓ_eq = ℓ0 − mg/k","ℓ_eq = ℓ0 · mg/k","ℓ_eq = mg/k"], correct:0,
+     exp:"À l'équilibre, mg − k(ℓ_eq − ℓ0) = 0, soit ℓ_eq = ℓ0 + mg/k."},
+    {cat:'mec', diff:2, q:"Pour une masse animée d'une vitesse v(t) = v0 + at, quelle est son énergie cinétique en fonction du temps ?",
+     opts:["Ec(t) = ½ m (v0 + at)²","Ec(t) = ½ m (v0 + at)","Ec(t) = m (v0 + at)²","Ec(t) = ½ m v0² + at"], correct:0,
+     exp:"Ec(t) = ½ m [v(t)]² = ½ m (v0 + at)², par composition des fonctions v(t) et Ec(v)."},
+    {cat:'mec', diff:3, q:"Pour une bille tombant dans un liquide visqueux (frottement −6πrη v⃗, poussée d'Archimède négligée), quelle équation différentielle vérifie la vitesse v(t) ?",
+     opts:["v̇ + v/τ = g, avec τ = m/(6πrη)","v̇ = g − 6πrη v²/m","v̈ + ω0² v = 0","v̇ = −g + 6πrη v/m"], correct:0,
+     exp:"Le PFD projeté vers le bas donne m v̇ = mg − 6πrη v, soit v̇ + v/τ = g avec τ = m/(6πrη)."},
+    {cat:'mec', diff:3, q:"Dans le modèle d'un capteur d'accélération (masse entre deux ressorts, frottement visqueux de coefficient α), le facteur de qualité Q s'exprime en fonction de ω0, m et α par…",
+     opts:["Q = m ω0 / α","Q = α / (m ω0)","Q = m / (ω0 α)","Q = ω0 / (m α)"], correct:0,
+     exp:"En comparant l'équation obtenue à Ẍ + (ω0/Q) Ẋ + ω0² X = −aC, on identifie Q = m ω0 / α = √(2km)/α."},
+    {cat:'mec', diff:3, q:"Pour une orbite circulaire, l'égalité entre accélération gravitationnelle et accélération centripète, Ω²r = G M_T / r², conduit à quelle relation ?",
+     opts:["Ω² r³ = G M_T","Ω r² = G M_T","Ω² = G M_T · r","Ω r = G M_T"], correct:0,
+     exp:"En multipliant les deux membres par r², on obtient Ω² r³ = G M_T (analogue de la 3ᵉ loi de Kepler pour une orbite circulaire)."},
+  ];
+
+  const CAT_LABEL = {dim:'Analyse dimensionnelle', unc:'Incertitudes', mec:'Mécanique du point'};
+  const CAT_CLASS = {dim:'dim', unc:'unc', mec:'mec'};
+  const N_QUESTIONS = 20;
+
+  function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [arr[i],arr[j]] = [arr[j],arr[i]];
+    }
+    return arr;
+  }
+
+  function pickQuestions(){
+    const byDiff = {1:[],2:[],3:[]};
+    POOL.forEach(q=>byDiff[q.diff].push(q));
+    Object.values(byDiff).forEach(shuffle);
+    const targetCounts = {1:7,2:7,3:6};
+    let selected = [];
+    [1,2,3].forEach(d=>{
+      const c = Math.min(targetCounts[d], byDiff[d].length);
+      selected.push(...byDiff[d].slice(0,c));
+    });
+    if(selected.length < N_QUESTIONS){
+      const rest = shuffle(POOL.filter(q=>!selected.includes(q)));
+      selected.push(...rest.slice(0, N_QUESTIONS - selected.length));
+    }
+    selected = selected.slice(0, N_QUESTIONS);
+    // shuffle options within each question, keep progressive difficulty order
+    return selected.map(q=>{
+      const idx = shuffle([0,1,2,3]);
+      const opts = idx.map(i=>q.opts[i]);
+      const correct = idx.indexOf(q.correct);
+      return {cat:q.cat, diff:q.diff, q:q.q, opts, correct, exp:q.exp};
+    });
+  }
+
+  // ---------------------------------------------------------------
+  // State & DOM
+  // ---------------------------------------------------------------
+  let session = [];
+  let current = 0;
+  let score = 0;
+  let answered = false;
+  let scoreByCat = {dim:{ok:0,tot:0}, unc:{ok:0,tot:0}, mec:{ok:0,tot:0}};
+  let timerInterval = null;
+  let startTime = null;
+  let elapsedFrozen = 0;
+
+  const screenStart = document.getElementById('screenStart');
+  const screenQuiz = document.getElementById('screenQuiz');
+  const screenEnd = document.getElementById('screenEnd');
+  const chronoEl = document.getElementById('chrono');
+  const chronoTxt = document.getElementById('chronoTxt');
+  const progressFill = document.getElementById('progressFill');
+
+  function fmtTime(sec){
+    const m = Math.floor(sec/60).toString().padStart(2,'0');
+    const s = Math.floor(sec%60).toString().padStart(2,'0');
+    return m+':'+s;
+  }
+
+  function startTimer(){
+    startTime = Date.now();
+    chronoEl.classList.remove('stopped');
+    timerInterval = setInterval(()=>{
+      const sec = (Date.now()-startTime)/1000;
+      chronoTxt.textContent = fmtTime(sec);
+    }, 250);
+  }
+  function stopTimer(){
+    clearInterval(timerInterval);
+    chronoEl.classList.add('stopped');
+    elapsedFrozen = (Date.now()-startTime)/1000;
+  }
+
+  function startQuiz(){
+    session = pickQuestions();
+    current = 0; score = 0; answered = false;
+    scoreByCat = {dim:{ok:0,tot:0}, unc:{ok:0,tot:0}, mec:{ok:0,tot:0}};
+    session.forEach(q=>scoreByCat[q.cat].tot++);
+    screenStart.style.display = 'none';
+    screenEnd.style.display = 'none';
+    screenQuiz.style.display = 'block';
+    startTimer();
+    renderQuestion();
+  }
+
+  function renderQuestion(){
+    answered = false;
+    const q = session[current];
+    document.getElementById('qNum').textContent = 'Question '+(current+1)+' / '+session.length;
+    progressFill.style.width = Math.round((current/session.length)*100)+'%';
+
+    const badge = document.getElementById('qCatBadge');
+    badge.textContent = CAT_LABEL[q.cat];
+    badge.className = 'badge '+CAT_CLASS[q.cat];
+
+    const dots = document.getElementById('qDiffDots').children;
+    for(let i=0;i<3;i++){ dots[i].className = i < q.diff ? 'on' : ''; }
+
+    document.getElementById('qText').textContent = q.q;
+
+    const optsWrap = document.getElementById('qOpts');
+    optsWrap.innerHTML = '';
+    const letters = ['A','B','C','D'];
+    q.opts.forEach((optText, i)=>{
+      const btn = document.createElement('button');
+      btn.className = 'opt';
+      btn.innerHTML = '<span class="lettre">'+letters[i]+'</span><span>'+optText+'</span>';
+      btn.addEventListener('click', ()=>selectAnswer(i));
+      optsWrap.appendChild(btn);
+    });
+
+    document.getElementById('qFeedback').style.display = 'none';
+    document.getElementById('btnNext').style.display = 'none';
+  }
+
+  function selectAnswer(i){
+    if(answered) return;
+    answered = true;
+    const q = session[current];
+    const opts = document.querySelectorAll('#qOpts .opt');
+    const isCorrect = (i === q.correct);
+    if(isCorrect){ score++; scoreByCat[q.cat].ok++; }
+
+    opts.forEach((btn, idx)=>{
+      btn.disabled = true;
+      if(idx === q.correct) btn.classList.add('correct');
+      else if(idx === i) btn.classList.add('wrong');
+      else btn.classList.add('dim-out');
+    });
+
+    const fb = document.getElementById('qFeedback');
+    fb.className = 'feedback ' + (isCorrect ? 'ok' : 'ko');
+    fb.innerHTML = '<span class="verdict">' + (isCorrect ? 'Correct.' : 'Incorrect.') + '</span>' + q.exp;
+    fb.style.display = 'block';
+
+    const btnNext = document.getElementById('btnNext');
+    btnNext.textContent = (current === session.length-1) ? 'Voir la copie corrigée →' : 'Question suivante →';
+    btnNext.style.display = 'inline-block';
+  }
+
+  function nextQuestion(){
+    if(current === session.length-1){
+      finishQuiz();
+    } else {
+      current++;
+      renderQuestion();
+    }
+  }
+
+  function finishQuiz(){
+    stopTimer();
+    progressFill.style.width = '100%';
+    screenQuiz.style.display = 'none';
+    screenEnd.style.display = 'block';
+    document.getElementById('scoreVal').textContent = score;
+    document.getElementById('scDim').textContent = scoreByCat.dim.ok+'/'+scoreByCat.dim.tot;
+    document.getElementById('scUnc').textContent = scoreByCat.unc.ok+'/'+scoreByCat.unc.tot;
+    document.getElementById('scMec').textContent = scoreByCat.mec.ok+'/'+scoreByCat.mec.tot;
+    document.getElementById('tempsFinal').textContent = fmtTime(elapsedFrozen);
+
+    let mention;
+    const pct = score / session.length;
+    if(pct >= 0.85) mention = 'Très solide — la copie est quasiment sans faute.';
+    else if(pct >= 0.65) mention = 'Bon niveau — quelques révisions ciblées suffiront.';
+    else if(pct >= 0.4) mention = 'Base correcte — revoir le formulaire avant le prochain DS.';
+    else mention = 'À retravailler — reprends le cours et le formulaire avant de recommencer.';
+    document.getElementById('mentionTxt').textContent = mention;
+  }
+
+  const overlay = document.getElementById('overlay');
+  let scrollLockY = 0;
+  function openOverlay(){
+    scrollLockY = window.scrollY || window.pageYOffset || 0;
+    document.body.style.position = 'fixed';
+    document.body.style.top = (-scrollLockY) + 'px';
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    overlay.classList.add('open');
+  }
+  function closeOverlay(){
+    overlay.classList.remove('open');
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    window.scrollTo(0, scrollLockY);
+  }
+
+  document.getElementById('btnStart').addEventListener('click', startQuiz);
+  document.getElementById('btnNext').addEventListener('click', nextQuestion);
+  document.getElementById('btnRestart').addEventListener('click', startQuiz);
+  document.getElementById('btnReviewFormulaire').addEventListener('click', openOverlay);
+  document.getElementById('openFormulaire').addEventListener('click', openOverlay);
+  document.getElementById('closeFormulaire').addEventListener('click', closeOverlay);
+  overlay.addEventListener('click', (e)=>{ if(e.target === overlay) closeOverlay(); });
+  document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape' && overlay.classList.contains('open')) closeOverlay(); });
+
+})();
+</script>
+</body>
+</html>
